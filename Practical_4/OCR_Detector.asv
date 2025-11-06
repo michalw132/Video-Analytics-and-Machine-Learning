@@ -3,6 +3,7 @@ close all
 
 %We load the classification model of our choice
 %////////////To be completed at STEP 2 \\\\\\\\\\\\ 
+load detectorModel modelS
 
 %Open testing image and convert to gary scale
 I=imread('digitrecognition1.jpg');
@@ -38,22 +39,23 @@ for r=1:samplingX:size(I,1)
         digitIm = I(r:r+samplingX-1, c:c+samplingY-1);
         
         % we convert it into doubles from 0 to 1 and invert them (rememebr that in the training set, the digitd were white on black background)
-        %////////////To be completed at STEP 3 \\\\\\\\\\\\
+        digitIm = im2double(digitIm);
+        digitIm = 1 - digitIm;
         
         %All training examples were 28x28. To have any chance, we need to
         %resample them into a 28x28 imaGE
-        %////////////To be completed at STEP 3 \\\\\\\\\\\\
+        digitIm = imresize(digitIm, [28 28]);
         
         
-        %We display teh individually segmented digits
+        %We display the individually segmented digits
         subplot(numberRows,numberColumns,digitCounter)
         imshow(digitIm)
         
         %we reshape the digit into a vector
-        %////////////To be completed at STEP 3 \\\\\\\\\\\\  
+        digitVector = reshape(digitIm, 1, []);
         
         
-        prediction =  %////////////To be completed at STEP 2 \\\\\\\\\\\\  
+        prediction =  SVMTesting_v2(digitVector, detectorModel);
         
         predictedRow=[predictedRow prediction];
         end

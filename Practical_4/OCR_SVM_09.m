@@ -49,6 +49,8 @@ end
 %Perform training
 modelSVM = SVMtraining_v2(images, labels);
 
+save detectorModel modelSVM
+
 %After calculating the support vectors, we can draw them in the previous
 %image
 
