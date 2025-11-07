@@ -1,16 +1,10 @@
-function [outputArg1,outputArg2] = NNTesting(inputArg1,inputArg2)
-%NNTESTING Summary of this function goes here
-%   Detailed explanation goes here
-arguments (Input)
-    inputArg1
-    inputArg2
-end
+function prediction = NNTesting(testImage, modelNN)
 
-arguments (Output)
-    outputArg1
-    outputArg2
-end
-
-outputArg1 = inputArg1;
-outputArg2 = inputArg2;
+    for i=1:size(modelNN.neighbours,1)
+        distances(i) = EuclideanDistance(testImage, modelNN.neighbours(i,:));
+    end
+   
+    [~, index] = min(distances);
+    
+    prediction = modelNN.labels(index);
 end

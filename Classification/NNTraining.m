@@ -1,16 +1,6 @@
-function [outputArg1,outputArg2] = NNTraining(inputArg1,inputArg2)
-%NNTRAINING Summary of this function goes here
-%   Detailed explanation goes here
-arguments (Input)
-    inputArg1
-    inputArg2
-end
+function modelNN = NNTraining(images, labels)
 
-arguments (Output)
-    outputArg1
-    outputArg2
-end
+modelNN.neighbours=images;
+modelNN.labels=labels;
 
-outputArg1 = inputArg1;
-outputArg2 = inputArg2;
 end

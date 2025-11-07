@@ -1,16 +1,13 @@
-function [outputArg1,outputArg2] = KNNTesting(inputArg1,inputArg2)
-%KNNTESTING Summary of this function goes here
-%   Detailed explanation goes here
-arguments (Input)
-    inputArg1
-    inputArg2
+function prediction = KNNTesting(testImage, modelNN, K)
+
+for i=1:size(modelNN.neighbours,1)
+        distances(i) = EuclideanDistance(testImage, modelNN.neighbours(i,:));
 end
 
-arguments (Output)
-    outputArg1
-    outputArg2
-end
+    [~, sortedIdx] = sort(distances, 'ascend');
+    
+    nearestLabels = modelNN.labels(sortedIdx(1:K));
+    
+    prediction = mode(nearestLabels);
 
-outputArg1 = inputArg1;
-outputArg2 = inputArg2;
 end

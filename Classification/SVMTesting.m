@@ -1,16 +1,22 @@
-function [outputArg1,outputArg2] = SVMTesting(inputArg1,inputArg2)
-%SVMTESTING Summary of this function goes here
-%   Detailed explanation goes here
-arguments (Input)
-    inputArg1
-    inputArg2
-end
+function [prediction maxi]= SVMTesting(image,model)
 
-arguments (Output)
-    outputArg1
-    outputArg2
-end
+if strcmp(model.type,'binary')
+    
+    kerneloption.matrix=svmkernel(image,'gaussian',model.param.sigmakernel,model.xsup);
+    pred = svmval(image,model.xsup,model.w,model.w0,model.param.kernel,kerneloption);
+ 
+    if pred>0
+        prediction = 1;
+    else
+        prediction = 0;
+    end
+    
+else
+    
+    [pred maxi] = svmmultival(image,model.xsup,model.w,model.b,model.nbsv,model.param.kernel,model.param.kerneloption);
 
-outputArg1 = inputArg1;
-outputArg2 = inputArg2;
+     prediction = round(pred)-1;
+    
+end
+    
 end
