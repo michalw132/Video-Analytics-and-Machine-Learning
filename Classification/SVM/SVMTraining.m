@@ -1,5 +1,4 @@
-function model = SVMtraining(images, labels)
-
+function model = SVMTraining(images, labels)
 
 % first we check if the problem is binary classification or multiclass
 if max(labels)<2
@@ -13,13 +12,17 @@ if max(labels)<2
     lambda = 1e-20;  
     C = Inf;
     sigmakernel=10;
-    K=svmkernel(images,'gaussian',sigmakernel); 
+
+    K=svmkernel(images,'gaussian',sigmakernel);
+    %Other svmkernel options:
+    % svmkernel(images,'poly',sigmakernel);
+
     kerneloption.matrix=K;
 	kernel='numerical';
   
 
     % Calculate the support vectors
-    [xsup,w,w0,pos,tps,alpha] = svmclass(images,labels,C,lambda,kernel,kerneloption,1); 
+    [xsup,w,w0,pos,tps,alpha] = svmclass(images,labels,C,lambda,kernel,kerneloption,1);
 
     % create a structure encapsulating all the variables composing the model
     model.xsup = xsup;
@@ -57,7 +60,5 @@ else
     model.param.kernel=kernel;
     
 end
-
-
 
 end
