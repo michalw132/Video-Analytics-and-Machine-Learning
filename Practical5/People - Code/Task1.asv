@@ -1,0 +1,30 @@
+
+close all;
+
+[images, labels] =  loadPedestrianDatabase('pedestrian_train.cdataset', 200);
+
+path = ('People - Images/images/neg');
+
+im = imread('People - Images/images/pos/img00000.jpg');
+hog = hog_feature_vector (im);
+size(im);
+
+figure
+subplot(1,3,1)
+imshow(im)
+subplot(1,3,2)
+hist(hog);
+subplot(1,3,3)
+showHog(hog, [160,96]);
+
+totalHogs = [];
+
+for i=1:size(images,1)
+    im = reshape(images(i,:), 160, 96);
+    thisHog = hog_feature_vector (im);
+    totalHogs = [totalHogs; thisHog];
+end
+
+SVMModel = SVMtraining(totalHogs, labels);
+
+[testImages, testLabels] =  loadPedestrianDatabase('pedestrian_test.cdataset', 200);
