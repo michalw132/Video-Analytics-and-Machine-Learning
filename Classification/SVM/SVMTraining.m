@@ -13,9 +13,10 @@ if max(labels)<2
     C = Inf;
     sigmakernel=10;
 
-    K=svmkernel(images,'gaussian',sigmakernel);
-    %Other svmkernel options:
-    % svmkernel(images,'poly',sigmakernel);
+    K=svmkernel(images,'poly',sigmakernel);
+    % svmkernel options:
+    % gaussian, poly, polyhomog, htrbf, wavelet, frame
+    % poly and polyhomog are linear kernels
 
     kerneloption.matrix=K;
 	kernel='numerical';
