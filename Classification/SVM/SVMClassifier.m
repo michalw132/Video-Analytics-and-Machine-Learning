@@ -20,7 +20,7 @@ allImages = [];
 labels = [];
 
 % Sets the sample rate, the higher the faster it will run
-sampling = 100;
+sampling = 5;
 
 % Load positive images
 counter = 0;
@@ -112,3 +112,5 @@ while (count < 25) && (i <= length(comparison))
     end
     i = i + 1;
 end
+
+save SVMModel modelSVM

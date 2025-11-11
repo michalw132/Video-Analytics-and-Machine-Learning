@@ -7,7 +7,7 @@ function imgVector = extractRawPixels(img)
     
     % Squashes the pixels into (1 x no. Of pixels) instead of (width x
     % height)
-    vector = reshape(img,1, size(img, 1) * size(img, 2));
+    vector = reshape(img, 1, []);
 
     % Changes it from 255 to 0 - 1
     imgVector = double(vector) / 255; 
