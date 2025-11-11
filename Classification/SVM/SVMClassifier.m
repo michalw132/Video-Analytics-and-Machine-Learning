@@ -57,17 +57,25 @@ end
 % Split data into training and testing sets
 [trainImages, trainLabels, testImages, testLabels] = split5050(allImages, labels);
 
+tic
 % Trains the model
 modelSVM = SVMTraining(trainImages, trainLabels);
+disp("The training time for SVM is: " + toc)
 
 %% Testing
 classificationResult = zeros(size(testImages,1),1);
 
+totalTestTime = 0;
+
 for i = 1:size(testImages,1)
     currentTestImage = testImages(i,:);
+
+    tic
     classificationResult(i,1) = SVMTesting(currentTestImage, modelSVM);
+    totalTestTime = totalTestTime + toc;
 end
 
+disp("The testing time for SVM is: " + totalTestTime)
 %% Evaluation
 comparison = (testLabels == classificationResult);
 Accuracy = sum(comparison) / length(comparison);

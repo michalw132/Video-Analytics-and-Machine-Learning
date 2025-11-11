@@ -59,7 +59,9 @@ end
 [trainImages, trainLabels, testImages, testLabels] = split5050(allImages, labels);
 
 % Trains the model
+tic
 modelNN = NNTraining(trainImages, trainLabels);
+disp("The training time for NN is: " + toc)
 
 %% Testing
 
@@ -67,20 +69,25 @@ modelNN = NNTraining(trainImages, trainLabels);
 % the mode of 
 k = 10;
 
+totalTestTime = 0;
 % Pre allocation cause MatLabs keeps complaining about it
 classificationResult = zeros(size(testImages,1),1);
 for i = 1:size(testImages,1)
 
     %Gets all the pixels for the current test image
     currentTestImage = testImages(i,:);
-
+    
+    tic
     % Classify the current test image using the trained model
     classificationResult(i,1) = NNTesting(currentTestImage, modelNN);
 
+    totalTestTime = totalTestTime + toc;
     % Or 
 
     % classificationResult(i,1) = KNNTesting(currentTestImage, modelNN, k);
 end
+
+disp("The testing time for NN is: " + totalTestTime)
 
 %% Evaluation
 comparison = (testLabels == classificationResult);
