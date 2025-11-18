@@ -1,7 +1,16 @@
-clear all
-close all
+function result = NNClassifierFunction(sampling, k)
 
 %% Initial setup and preprocessing
+
+% Check if k has been passed as a parameter. If no, default to NN
+if nargin < 2
+    k = [];
+end
+
+% Initialise return values
+trainingTime = 0;
+testingTime = 0;
+accuracy = 0;
 
 % Set the folders
 posFolder = 'Assets/Images/Pos';
@@ -16,10 +25,7 @@ posFiles = posFiles(~[posFiles.isdir]);
 negFiles = negFiles(~[negFiles.isdir]);
 
 allImages = [];
-labels = [];          
-
-% Sets the sample rate, the higher the faster it will run
-sampling = 10;
+labels = [];
 
 
 % Load positive images
@@ -61,15 +67,11 @@ end
 % Trains the model
 tic
 modelNN = NNTraining(trainImages, trainLabels);
-disp("The training time for NN is: " + toc)
+trainingTime = trainingTime + toc;
+%disp("The training time for NN is: " + trainingTime)
 
 %% Testing
 
-%Used for the K-Nearest numbers, sets how many points you're going to take
-% the mode of
-k = 10;
-
-totalTestTime = 0;
 % Pre allocation cause MatLabs keeps complaining about it
 classificationResult = zeros(size(testImages,1),1);
 for i = 1:size(testImages,1)
@@ -79,55 +81,62 @@ for i = 1:size(testImages,1)
     
     tic
     % Classify the current test image using the trained model
-    classificationResult(i,1) = NNTesting(currentTestImage, modelNN);
-
-    totalTestTime = totalTestTime + toc;
-    % Or 
-
-    % classificationResult(i,1) = KNNTesting(currentTestImage, modelNN, k);
+    if isempty(k)
+        classificationResult(i,1) = NNTesting(currentTestImage, modelNN);
+    else
+        classificationResult(i,1) = KNNTesting(currentTestImage, modelNN, k);
+    end
+    testingTime = testingTime + toc;
 end
 
-disp("The testing time for NN is: " + totalTestTime)
+%disp("The testing time for NN is: " + totalTestTime)
 
 %% Evaluation
 comparison = (testLabels == classificationResult);
-Accuracy = sum(comparison)/length(comparison);
-disp(['Accuracy: ', num2str(Accuracy)]);
+accuracy = sum(comparison)/length(comparison);
+%disp(['Accuracy: ', num2str(accuracy)]);
 
-%We display 25 of the correctly classified images
-figure
-sgtitle('Correct Classification')
-count=0;
-i=1;
-while (count<25)&&(i<=length(comparison))
-   
-    if comparison(i)
-        count=count+1;
-        subplot(5,5,count)
-        Im = reshape(testImages(i,:),160,96);
-        imshow(Im, [])
-        title(num2str(classificationResult(i)))
-    end
-    
-    i=i+1;
-    
-end
+% Set return values
+result.trainingTime = trainingTime;
+result.testingTime = testingTime;
+result.accuracy = accuracy;
 
-%We display 25 of the incorrectly classified images
-figure
-sgtitle('Wrong Classification')
-count=0;
-i=1;
-while (count<25)&&(i<=length(comparison))
-    
-    if ~comparison(i)
-        count=count+1;
-        subplot(5,5,count)
-        Im = reshape(testImages(i,:),160,96);
-        imshow(Im, [])
-        title(num2str(classificationResult(i)))
-    end
-    
-    i=i+1;
-    
+% %We display 25 of the correctly classified images
+% figure
+% sgtitle('Correct Classification')
+% count=0;
+% i=1;
+% while (count<25)&&(i<=length(comparison))
+% 
+%     if comparison(i)
+%         count=count+1;
+%         subplot(5,5,count)
+%         Im = reshape(testImages(i,:),160,96);
+%         imshow(Im, [])
+%         title(num2str(classificationResult(i)))
+%     end
+% 
+%     i=i+1;
+% 
+% end
+% 
+% %We display 25 of the incorrectly classified images
+% figure
+% sgtitle('Wrong Classification')
+% count=0;
+% i=1;
+% while (count<25)&&(i<=length(comparison))
+% 
+%     if ~comparison(i)
+%         count=count+1;
+%         subplot(5,5,count)
+%         Im = reshape(testImages(i,:),160,96);
+%         imshow(Im, [])
+%         title(num2str(classificationResult(i)))
+%     end
+% 
+%     i=i+1;
+% 
+% end
+
 end

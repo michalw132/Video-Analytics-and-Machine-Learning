@@ -81,36 +81,36 @@ comparison = (testLabels == classificationResult);
 Accuracy = sum(comparison) / length(comparison);
 disp(['Accuracy: ', num2str(Accuracy)]);
 
-% % Display correctly classified images
-% figure
-% sgtitle('Correct Classification (SVM)')
-% count = 0;
-% i = 1;
-% while (count < 25) && (i <= length(comparison))
-%     if comparison(i)
-%         count = count + 1;
-%         subplot(5,5,count)
-%         Im = reshape(testImages(i,:),160,96);
-%         imshow(Im, [])
-%         title(num2str(classificationResult(i)))
-%     end
-%     i = i + 1;
-% end
-% 
-% % Display incorrectly classified images
-% figure
-% sgtitle('Wrong Classification (SVM)')
-% count = 0;
-% i = 1;
-% while (count < 25) && (i <= length(comparison))
-%     if ~comparison(i)
-%         count = count + 1;
-%         subplot(5,5,count)
-%         Im = reshape(testImages(i,:),160,96);
-%         imshow(Im, [])
-%         title(num2str(classificationResult(i)))
-%     end
-%     i = i + 1;
-% end
+% Display correctly classified images
+figure
+sgtitle('Correct Classification (SVM)')
+count = 0;
+i = 1;
+while (count < 25) && (i <= length(comparison))
+    if comparison(i)
+        count = count + 1;
+        subplot(5,5,count)
+        Im = reshape(testImages(i,:),160,96);
+        imshow(Im, [])
+        title(num2str(classificationResult(i)))
+    end
+    i = i + 1;
+end
 
-%save SVMModel modelSVM
+% Display incorrectly classified images
+figure
+sgtitle('Wrong Classification (SVM)')
+count = 0;
+i = 1;
+while (count < 25) && (i <= length(comparison))
+    if ~comparison(i)
+        count = count + 1;
+        subplot(5,5,count)
+        Im = reshape(testImages(i,:),160,96);
+        imshow(Im, [])
+        title(num2str(classificationResult(i)))
+    end
+    i = i + 1;
+end
+
+save SVMModel modelSVM
