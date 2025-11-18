@@ -1,7 +1,12 @@
-clear all
-close all
+%function [outputArg1,outputArg2] = SVMClassifierFunction(sampling)
+function result = SVMClassifierFunction(sampling, kernel, lambda, C, sigmakernel)
+
 
 %% Initial setup and preprocessing
+% Initialise return values
+trainingTime = 0;
+testingTime = 0;
+accuracy = 0;
 
 % Set the folders
 posFolder = 'Assets/Images/Pos';
@@ -20,7 +25,7 @@ allImages = [];
 labels = [];
 
 % Sets the sample rate, the higher the faster it will run
-sampling = 50;
+%sampling = 50;
 
 % Load positive images
 counter = 0;
@@ -59,27 +64,32 @@ end
 
 tic
 % Trains the model
-modelSVM = SVMTraining(trainImages, trainLabels);
-disp("The training time for SVM is: " + toc)
+modelSVM = SVMTraining(trainImages, trainLabels, kernel, lambda, C, sigmakernel);
+trainingTime = trainingTime + toc;
+%disp("Training time: " + trainingTime)
 
 %% Testing
 classificationResult = zeros(size(testImages,1),1);
-
-totalTestTime = 0;
 
 for i = 1:size(testImages,1)
     currentTestImage = testImages(i,:);
 
     tic
-    classificationResult(i,1) = SVMTesting(currentTestImage, modelSVM);
-    totalTestTime = totalTestTime + toc;
+    classificationResult(i,1) = SVMTesting(currentTestImage, modelSVM, kernel);
+    testingTime = testingTime + toc;
 end
 
-disp("The testing time for SVM is: " + totalTestTime)
+%disp("Testing time: " + testingTime)
 %% Evaluation
 comparison = (testLabels == classificationResult);
-Accuracy = sum(comparison) / length(comparison);
-disp(['Accuracy: ', num2str(Accuracy)]);
+accuracy = sum(comparison) / length(comparison);
+%disp(['Accuracy: ', num2str(accuracy)]);
+
+% Set return values
+result.trainingTime = trainingTime;
+result.testingTime = testingTime;
+result.accuracy = accuracy;
+end
 
 % % Display correctly classified images
 % figure

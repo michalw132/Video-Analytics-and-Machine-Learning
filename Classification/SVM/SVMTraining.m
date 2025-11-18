@@ -1,4 +1,4 @@
-function model = SVMTraining(images, labels)
+function model = SVMTraining(images, labels, kernel, lambda, C, sigmakernel)
 
 % first we check if the problem is binary classification or multiclass
 if max(labels)<2
@@ -8,13 +8,8 @@ if max(labels)<2
     %SVM software requires labels -1 or 1 for the binary problem
     labels(labels==0)=-1;
 
-    %Initilaise and setup SVM parameters
-    lambda = 1e-20;  
-    C = Inf;
-    sigmakernel=10;
-
-    K=svmkernel(images,'poly',sigmakernel);
-    % svmkernel options:
+    K=svmkernel(images,kernel,sigmakernel);
+    % svmkernel kernel options:
     % gaussian, poly, polyhomog, htrbf, wavelet, frame
     % poly and polyhomog are linear kernels
 

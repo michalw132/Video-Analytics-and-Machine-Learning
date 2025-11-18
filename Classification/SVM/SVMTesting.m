@@ -1,9 +1,9 @@
-function [prediction maxi]= SVMTesting(image,model)
+function [prediction maxi]= SVMTesting(image,model, kernel)
 
 if strcmp(model.type,'binary')
     
-    kerneloption.matrix=svmkernel(image,'poly',model.param.sigmakernel,model.xsup);
-    % svmkernel options:
+    kerneloption.matrix=svmkernel(image,kernel,model.param.sigmakernel,model.xsup);
+    % svmkernel kernel options:
     % gaussian, poly, polyhomog, htrbf, wavelet, frame
     % poly and polyhomog are linear kernels
 
