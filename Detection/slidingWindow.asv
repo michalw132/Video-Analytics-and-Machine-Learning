@@ -7,7 +7,7 @@ load SVMModel modelSVM
 pedestrianData = loadDataset('test.dataset', 20);
 
 %Open testing image and convert to gray scale
-I=imread('/Assets/pedestrian/image_00000011.jpg');
+I=imread('./Assets/pedestrian/image_00000011.jpg');
 I=rgb2gray(I);
 
 
@@ -22,6 +22,8 @@ numberColumns = round(size(I, 2) / samplingY);
 %This is just for visualisation
 pedestrianCrops = [];
 
+%This is what houses each images detections
+totalDetections = cell(1, numel(pedestrianData));
 
 % This loops through all of the pedestrian images
 for i=1:numel(pedestrianData)
@@ -38,10 +40,12 @@ for i=1:numel(pedestrianData)
     
     %for each pedestrian within the image, 
     county = 0;
+
+    detections = [];
     for r = 1:30:size(I,1)      % slide vertically every 5 pixels
         
-        
-        detections = [];
+        %Initialises detections array
+        currentDetections = [];
         county = county + 1;
         countx = 0;
         for c = 1:30:size(I,2)  % slide horizontally every 5 pixels    
@@ -60,12 +64,13 @@ for i=1:numel(pedestrianData)
                 %All training examples were 160x96. To have any chance, we need to
                 %resample them into a 160x96 image
                 pedestrianIm = imresize(pedestrianIm, [160 96]);
-                    
-                pedestrianIm = extractRawPixels(pedestrianIm); 
-                pedestrianCrops = [pedestrianCrops;pedestrianIm ];
+
+                pedestrianCrops = [pedestrianIm ];
+
+                pedestrianIm = extractHOGVector(pedestrianIm); 
                 
                 tic
-                prediction =  SVMTesting(pedestrianIm, modelSVM);
+                prediction =  SVMTesting(pedestrianIm, modelSVM, "poly");
                 toc
                 
                     if prediction == 1
@@ -78,6 +83,9 @@ for i=1:numel(pedestrianData)
             end
         end    
     end
+
+    totalDetections{i} = detections;
+
 end
 
 
@@ -127,33 +135,7 @@ for i=75:99
     
 end
 
-%{
+
 %% Evaluation
-%Groundtruth
-%{
-solutionTruth = [7 2 1 0 4 1 4 9 5 9;...
-                 0 6 9 0 1 5 9 7 3 4;...
-                 9 6 6 5 4 0 7 4 0 1;...
-                 3 1 3 4 7 2 7 1 2 1;...
-                 1 7 4 2 3 5 1 2 4 4];
-             
-comparison = (predictedFullImage==solutionTruth);
-Accuracy = sum(sum(comparison))/ (size(comparison,1)*size(comparison,2))
-%}
 
-%Accuracy is not as good as before (.36) idk why cause I couldn't change
-%the values before and didn't know how to compare to the MINST dataset.
 
-figure;
-imagesc(map);           % visualize confidence values as colors
-axis image; colorbar;
-title('Classifier confidence map');
-
-mapNorm = (map - min(map(:))) / (max(map(:)) - min(map(:)));
-bw = mapNorm > 0.4;
-
-figure;
-imagesc(bw);           % visualize confidence values as colors
-axis image; colorbar;
-title('Classifier map mask');
-%}

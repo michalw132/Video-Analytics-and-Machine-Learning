@@ -7,7 +7,7 @@ load SVMModel modelSVM
 pedestrianData = loadDataset('test.dataset', 20);
 
 %Open testing image and convert to gray scale
-I=imread('/Assets/pedestrian/image_00000011.jpg');
+I=imread('./Assets/pedestrian/image_00000011.jpg');
 I=rgb2gray(I);
 
 
@@ -64,12 +64,13 @@ for i=1:numel(pedestrianData)
                 %All training examples were 160x96. To have any chance, we need to
                 %resample them into a 160x96 image
                 pedestrianIm = imresize(pedestrianIm, [160 96]);
-                    
-                pedestrianIm = extractRawPixels(pedestrianIm); 
-                pedestrianCrops = [pedestrianCrops;pedestrianIm ];
+
+                pedestrianCrops = [pedestrianCrops; pedestrianIm];
+
+                pedestrianIm = extractHOGVector(pedestrianIm); 
                 
                 tic
-                prediction =  SVMTesting(pedestrianIm, modelSVM);
+                prediction =  SVMTesting(pedestrianIm, modelSVM, "gaussian");
                 toc
                 
                     if prediction == 1
@@ -88,53 +89,53 @@ for i=1:numel(pedestrianData)
 end
 
 
-% Display the first 25 crops
-figure
-sgtitle('First 25 crops')
-for i=1:25
-    subplot(5,5,i)
-    Im = reshape(pedestrianCrops(i,:),160,96);
-    imshow(Im, [])
-    
-end
-
-% Display the next 25 crops
-figure
-sgtitle('Next 25 crops')
-counter = 1;
-for i=25:49
-    
-    subplot(5,5,counter)
-    Im = reshape(pedestrianCrops(i,:),160,96);
-    imshow(Im, [])
-    counter = counter + 1;
-end
-
-% Display the next 25 crops
-figure
-sgtitle('Next 25 crops')
-counter = 1;
-for i=50:74
-    subplot(5,5,counter)
-    Im = reshape(pedestrianCrops(i,:),160,96);
-    imshow(Im, [])
-     counter = counter + 1;
-    
-end
-
-% Display the next 25 crops
-figure
-sgtitle('Next 25 crops')
-counter = 1;
-for i=75:99
-    subplot(5,5,counter)
-    Im = reshape(pedestrianCrops(i,:),160,96);
-    imshow(Im, [])
-     counter = counter + 1;
-    
-end
-
-
-%% Evaluation
+% % Display the first 25 crops
+% figure
+% sgtitle('First 25 crops')
+% for i=1:25
+%     subplot(5,5,i)
+%     Im = reshape(pedestrianCrops(i,:),160,96);
+%     imshow(Im, [])
+% 
+% end
+% 
+% % Display the next 25 crops
+% figure
+% sgtitle('Next 25 crops')
+% counter = 1;
+% for i=25:49
+% 
+%     subplot(5,5,counter)
+%     Im = reshape(pedestrianCrops(i,:),160,96);
+%     imshow(Im, [])
+%     counter = counter + 1;
+% end
+% 
+% % Display the next 25 crops
+% figure
+% sgtitle('Next 25 crops')
+% counter = 1;
+% for i=50:74
+%     subplot(5,5,counter)
+%     Im = reshape(pedestrianCrops(i,:),160,96);
+%     imshow(Im, [])
+%      counter = counter + 1;
+% 
+% end
+% 
+% % Display the next 25 crops
+% figure
+% sgtitle('Next 25 crops')
+% counter = 1;
+% for i=75:99
+%     subplot(5,5,counter)
+%     Im = reshape(pedestrianCrops(i,:),160,96);
+%     imshow(Im, [])
+%      counter = counter + 1;
+% 
+% end
+% 
+% 
+% %% Evaluation
 
 

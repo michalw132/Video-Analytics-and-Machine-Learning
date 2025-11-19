@@ -3,10 +3,10 @@ close all
 
 %% Setup parameters
 iterations = 5;
-sampling = 50;
+sampling = 10;
 
 % Training + Testing
-kernel = 'poly';
+kernel = 'gaussian';
 % Other kernel options:
 % gaussian, poly, polyhomog, htrbf, wavelet, frame
 % Note: poly and polyhomog are linear kernels
