@@ -1,5 +1,4 @@
-%function [outputArg1,outputArg2] = SVMClassifierFunction(sampling)
-function result = SVMClassifierFunction(sampling, kernel, lambda, C, sigmakernel)
+function [result] = SVMClassifierFunction(sampling, kernel, lambda, C, sigmakernel)
 
 
 %% Initial setup and preprocessing
@@ -38,7 +37,7 @@ for i = 1:sampling:length(posFiles)
     img = imread(fullfile(posFolder, posFiles(i).name));
 
     % Adds the image to the variable and does some processing to it
-    allImages(counter, :) = extractRawPixels(img);
+    allImages(counter, :) = extractHOGVector(img);
 
     % As these are all images with pedestrians present, the label is 1 for
     % correct
@@ -54,7 +53,7 @@ counter = 0;
 for i = 1:sampling:size(negFiles, 1)
     counter = counter +1;
     img = imread(fullfile(negFolder, negFiles(i).name));
-    allImages(posImageTotal + counter,:) = extractRawPixels(img);
+    allImages(posImageTotal + counter,:) = extractHOGVector(img);
     labels(posImageTotal + counter,1) = 0;
 end
 
@@ -89,6 +88,8 @@ accuracy = sum(comparison) / length(comparison);
 result.trainingTime = trainingTime;
 result.testingTime = testingTime;
 result.accuracy = accuracy;
+
+save SVMModel modelSVM
 end
 
 % % Display correctly classified images
@@ -123,4 +124,3 @@ end
 %     i = i + 1;
 % end
 
-%save SVMModel modelSVM

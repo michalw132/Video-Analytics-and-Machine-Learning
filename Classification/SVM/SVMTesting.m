@@ -1,4 +1,4 @@
-function [prediction maxi]= SVMTesting(image,model, kernel)
+function [prediction maxi]= SVMTesting(image,model,kernel)
 
 if strcmp(model.type,'binary')
     
