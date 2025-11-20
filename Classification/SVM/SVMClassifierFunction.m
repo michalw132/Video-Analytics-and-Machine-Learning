@@ -80,17 +80,27 @@ end
 
 %disp("Testing time: " + testingTime)
 %% Evaluation
-comparison = (testLabels == classificationResult);
-accuracy = sum(comparison) / length(comparison);
-%disp(['Accuracy: ', num2str(accuracy)]);
+N = size(testImages, 1);
+TP = sum((testLabels == 1) & (classificationResult == 1));
+TN = sum((testLabels == 0) & (classificationResult == 0));
+FP = sum((testLabels == 0) & (classificationResult == 1));
+FN = sum((testLabels == 1) & (classificationResult == 0));
+
 
 % Set return values
+result.accuracy = (TN+TP) / N;
+result.errorRate = 1 - result.accuracy;
+result.recall = TP / (TP+FN);
+result.precision = TP / (TP+FP);
+result.specificity = TN / (TN+FP);
+result.sensitivity = TP / (TP+FN);
+result.fMeasure = 2 * TP / (2 * TP + FN + FP);
+result.falseAlarmRate = 1 - result.specificity;
+
 result.trainingTime = trainingTime;
 result.testingTime = testingTime;
-result.accuracy = accuracy;
 
 save SVMModel modelSVM
-end
 
 % % Display correctly classified images
 % figure
@@ -124,3 +134,4 @@ end
 %     i = i + 1;
 % end
 
+end

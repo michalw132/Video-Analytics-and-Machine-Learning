@@ -2,7 +2,7 @@ clear all
 close all
 
 %% Setup parameters
-iterations = 5;
+iterations = 10;
 sampling = 10;
 
 % Training + Testing
@@ -23,6 +23,13 @@ results = struct( ...
     'trainingTime', {}, ...
     'testingTime', {}, ...
     'accuracy', {}, ...
+    'errorRate', {}, ...
+    'recall', {}, ...
+    'precision', {}, ...
+    'specificity', {}, ...
+    'sensitivity', {}, ...
+    'fMeasure', {}, ...
+    'falseAlarmRate', {}, ...
     'iterations', {}, ...
     'sampling', {}, ...
     'kernel', {}, ...
@@ -46,15 +53,30 @@ for i = 1:iterations
 end
 
 % Calculate average values
+meanAccuracy = mean([results.accuracy]);
+meanErrorRate = mean([results.errorRate]);
+meanRecall = mean([results.recall]);
+meanPrecision = mean([results.precision]);
+meanSpecificity = mean([results.specificity]);
+meanSensitivity = mean([results.sensitivity]);
+meanfMeasure = mean([results.fMeasure]);
+meanfalseAlarmRate = mean([results.falseAlarmRate]);
+
 meanTrainingTime = mean([results.trainingTime]);
 meanTestingTime = mean([results.testingTime]);
-meanAccuracy = mean([results.accuracy]);
 
 % Summary row
 summary.Label = "Mean Values:";
 summary.trainingTime = meanTrainingTime;
 summary.testingTime = meanTestingTime;
 summary.accuracy = meanAccuracy;
+summary.errorRate = meanErrorRate;
+summary.recall = meanRecall;
+summary.precision = meanPrecision;
+summary.specificity = meanSpecificity;
+summary.sensitivity = meanSensitivity;
+summary.fMeasure = meanfMeasure;
+summary.falseAlarmRate = meanfalseAlarmRate;
 
 % Also include parameters used
 summary.iterations = iterations;
