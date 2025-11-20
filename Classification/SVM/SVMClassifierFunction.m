@@ -1,11 +1,10 @@
 function [result] = SVMClassifierFunction(sampling, kernel, lambda, C, sigmakernel)
 
 
-%% Initial setup and preprocessing
+%% Initial setup
 % Initialise return values
 trainingTime = 0;
 testingTime = 0;
-accuracy = 0;
 
 % Set the folders
 posFolder = 'Assets/Images/Pos';
@@ -22,9 +21,6 @@ negFiles = negFiles(~[negFiles.isdir]);
 % Initialize variables
 allImages = [];
 labels = [];
-
-% Sets the sample rate, the higher the faster it will run
-%sampling = 50;
 
 % Load positive images
 counter = 0;
@@ -57,9 +53,30 @@ for i = 1:sampling:size(negFiles, 1)
     labels(posImageTotal + counter,1) = 0;
 end
 
+
 %% Training
 % Split data into training and testing sets
 [trainImages, trainLabels, testImages, testLabels] = split5050(allImages, labels);
+
+% Preprocessing
+% Z-score standardization
+% Prevents features with large numeric scales from dominating
+mu = mean(trainImages, 1);
+sigma = std(trainImages, 0, 1);
+sigma(sigma == 0) = 1;
+
+trainImages = (trainImages - mu) ./ sigma;
+testImages = (testImages - mu) ./ sigma;
+
+% L2-normalize each HOG vector
+% Makes HOG descriptors comparable across images
+trainImages = trainImages ./ vecnorm(trainImages, 2, 2);
+testImages  = testImages  ./ vecnorm(testImages, 2, 2);
+
+% Replace NaNs (if any rows become 0 vector after normalization)
+% Shouldn't happen, but best to stay on the safe side
+trainImages(any(isnan(trainImages),2), :) = 0;
+testImages(any(isnan(testImages),2), :) = 0;
 
 tic
 % Trains the model
@@ -90,7 +107,6 @@ FN = sum((testLabels == 1) & (classificationResult == 0));
 % Set return values
 result.accuracy = (TN+TP) / N;
 result.errorRate = 1 - result.accuracy;
-result.recall = TP / (TP+FN);
 result.precision = TP / (TP+FP);
 result.specificity = TN / (TN+FP);
 result.sensitivity = TP / (TP+FN);
