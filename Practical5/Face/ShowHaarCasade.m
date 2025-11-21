@@ -46,19 +46,17 @@ for s=stages
             
             %with all these parameters we can compose the mask over the
             %empty image LeafImage
-            %////////// To be completed at step 1\\\\\\\\\\\
-            
-            pixelValue = 0;
-            
-             if RectWeight > 0
+
+            %% step 1
+            if RectWeight > 0
                 pixelValue = 255;
             elseif RectWeight < 0
                 pixelValue = -255;
+            end
              
 
             for y = RectY:(RectY + RectHeight - 1)
                 for x = RectX:(RectX + RectWidth - 1)
-                    
                     LeafImage(y, x) = pixelValue;
                 end
             end   
@@ -68,8 +66,5 @@ for s=stages
         subplot(rows,cols,t), imagesc(LeafImage), axis off
     end
 end
-
-end
-
 
 

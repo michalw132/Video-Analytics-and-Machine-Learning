@@ -73,7 +73,7 @@ for i = 0: rows/8 - 2
                 %Iterations for pixels in one cell
                 for p=1:8
                     for q=1:8
-%                       
+                        
                         alpha= angleA(p,q);
                         
                         % Binning Process (Bi-Linear Interpolation)
@@ -134,4 +134,4 @@ for z=1:length(feature)
 end
 feature=feature/sqrt(norm(feature)^2+.001);        
 
-% toc;       
+% toc;
