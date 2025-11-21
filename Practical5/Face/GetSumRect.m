@@ -13,10 +13,9 @@ B = IntegralImage((x+Width)*IIWidth+y+1);
 C = IntegralImage(x*IIWidth+y+Height+1);
           
 % Calculate the sum of pixels within the rectangular mask as a combination
-% of teh elements A, B, C and D on the integral image
-%/////////// To be completed at step 5\\\\\\\\\\\\\
-PixelSum=
-          
+% of the elements A, B, C and D on the integral image
+%% step 5
+PixelSum = D - B - C + A;
 end
 
 

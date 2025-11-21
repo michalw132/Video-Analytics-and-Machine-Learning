@@ -1,7 +1,6 @@
 function Iout = IntegralImageCalculation(Iin)
-
-% Calculate the integral image
-%/////////// To be completed at step 3\\\\\\\\\\\\\
-
-
+    %% step 3
+    % Calculate the integral image
+    I = double(Iin);
+    Iout = cumsum(cumsum(I, 1), 2);
 end

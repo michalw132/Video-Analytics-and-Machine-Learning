@@ -78,36 +78,46 @@ end
 % Get the HaarCasade for the object detection
 HaarCasade=GetHaarCasade(FilenameHaarcasade);
 
+%% step 2
 % Display the Haar features used at every stage
-%/////////// To be completed at step  2\\\\\\\\\\\\\\\\
+ShowHaarCasade(HaarCasade, 1:5)
+% ShowHaarCasade(HaarCasade)
+%%
 
 % Get the integral images
 IntegralImages= GetIntergralImages(Picture,Options);
 
+%% step 4
 %Draw the integral images
 figure
-%/////////// To be completed at step 4\\\\\\\\\\\\\\\\
+subplot(1,2,1);
+imshow(IntegralImages.ii, []);
+title('Integral Image');
 
-
-
-
+subplot(1,2,2);
+imshow(IntegralImages.ii2, []);
+title('Integral Image Squared');
+%%
 
 Objects = HaarCasadeObjectDetection(IntegralImages,HaarCasade,Options);
 
 % Show the finale results
 if(nargout==0)
     ShowDetectionResult(Picture,Objects);
+    title('No NMS')
 end
 
+%% step 7
 % Implement non-maxima suppresion
-%/////////// To be completed at step 1\\\\\\\\\\\\\\\\
-
-
-
+threshold = 0.3;
+Objects = simpleNMS(Objects, threshold);
+%%
 
 % Show the finale results with non-maxima suprresion
 if(nargout==0)
+    %% step 8
     ShowDetectionResult(Picture,Objects);
+    title('NMS')
 end
 
 
