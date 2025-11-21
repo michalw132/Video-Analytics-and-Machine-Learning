@@ -96,22 +96,22 @@ for i = 1:size(testImages,1)
 end
 
 %disp("Testing time: " + testingTime)
+
+
 %% Evaluation
-N = size(testImages, 1);
-TP = sum((testLabels == 1) & (classificationResult == 1));
-TN = sum((testLabels == 0) & (classificationResult == 0));
-FP = sum((testLabels == 0) & (classificationResult == 1));
-FN = sum((testLabels == 1) & (classificationResult == 0));
+TPFPresult = TPFP(testImages, testLabels, classificationResult);
+result.TP = TPFPresult.TP;
+result.TN = TPFPresult.TN;
+result.FP = TPFPresult.FP;
+result.FN = TPFPresult.FN;
 
-
-% Set return values
-result.accuracy = (TN+TP) / N;
-result.errorRate = 1 - result.accuracy;
-result.precision = TP / (TP+FP);
-result.specificity = TN / (TN+FP);
-result.sensitivity = TP / (TP+FN);
-result.fMeasure = 2 * TP / (2 * TP + FN + FP);
-result.falseAlarmRate = 1 - result.specificity;
+result.accuracy = TPFPresult.accuracy;
+result.errorRate = TPFPresult.errorRate;
+result.precision = TPFPresult.precision;
+result.specificity = TPFPresult.specificity;
+result.sensitivity = TPFPresult.sensitivity;
+result.fMeasure = TPFPresult.fMeasure;
+result.falseAlarmRate = TPFPresult.falseAlarmRate;
 
 result.trainingTime = trainingTime;
 result.testingTime = testingTime;

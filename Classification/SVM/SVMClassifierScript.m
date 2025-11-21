@@ -1,9 +1,9 @@
 clear all
 close all
-
+ 
 %% Setup parameters
-iterations = 10;
-sampling = 10;
+iterations = 1;
+sampling = 50;
 
 % Training + Testing
 kernel = 'gaussian';
@@ -22,9 +22,12 @@ results = struct( ...
     'Label', {}, ...
     'trainingTime', {}, ...
     'testingTime', {}, ...
+    'TP', {}, ...
+    'TN', {}, ...
+    'FP', {}, ...
+    'FN', {}, ...
     'accuracy', {}, ...
     'errorRate', {}, ...
-    'recall', {}, ...
     'precision', {}, ...
     'specificity', {}, ...
     'sensitivity', {}, ...
@@ -52,31 +55,25 @@ for i = 1:iterations
     results(i) = r;
 end
 
-% Calculate average values
-meanAccuracy = mean([results.accuracy]);
-meanErrorRate = mean([results.errorRate]);
-meanRecall = mean([results.recall]);
-meanPrecision = mean([results.precision]);
-meanSpecificity = mean([results.specificity]);
-meanSensitivity = mean([results.sensitivity]);
-meanfMeasure = mean([results.fMeasure]);
-meanfalseAlarmRate = mean([results.falseAlarmRate]);
-
-meanTrainingTime = mean([results.trainingTime]);
-meanTestingTime = mean([results.testingTime]);
-
-% Summary row
+% Summary row comprised of mean values
+summary = struct();
 summary.Label = "Mean Values:";
-summary.trainingTime = meanTrainingTime;
-summary.testingTime = meanTestingTime;
-summary.accuracy = meanAccuracy;
-summary.errorRate = meanErrorRate;
-summary.recall = meanRecall;
-summary.precision = meanPrecision;
-summary.specificity = meanSpecificity;
-summary.sensitivity = meanSensitivity;
-summary.fMeasure = meanfMeasure;
-summary.falseAlarmRate = meanfalseAlarmRate;
+
+summary.trainingTime = mean([results.trainingTime]);
+summary.testingTime = mean([results.testingTime]);
+
+summary.TP = mean([results.TP]);
+summary.TN = mean([results.TN]);
+summary.FP = mean([results.FP]);
+summary.FN = mean([results.FN]);
+
+summary.accuracy = mean([results.accuracy]);
+summary.errorRate = mean([results.errorRate]);
+summary.precision = mean([results.precision]);
+summary.specificity = mean([results.specificity]);
+summary.sensitivity = mean([results.sensitivity]);
+summary.fMeasure = mean([results.fMeasure]);
+summary.falseAlarmRate = mean([results.falseAlarmRate]);
 
 % Also include parameters used
 summary.iterations = iterations;

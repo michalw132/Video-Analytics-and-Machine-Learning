@@ -10,7 +10,6 @@ end
 % Initialise return values
 trainingTime = 0;
 testingTime = 0;
-accuracy = 0;
 
 % Set the folders
 posFolder = 'Assets/Images/Pos';
@@ -92,14 +91,22 @@ end
 %disp("The testing time for NN is: " + totalTestTime)
 
 %% Evaluation
-comparison = (testLabels == classificationResult);
-accuracy = sum(comparison)/length(comparison);
-%disp(['Accuracy: ', num2str(accuracy)]);
+TPFPresult = TPFP(testImages, testLabels, classificationResult);
+result.TP = TPFPresult.TP;
+result.TN = TPFPresult.TN;
+result.FP = TPFPresult.FP;
+result.FN = TPFPresult.FN;
 
-% Set return values
+result.accuracy = TPFPresult.accuracy;
+result.errorRate = TPFPresult.errorRate;
+result.precision = TPFPresult.precision;
+result.specificity = TPFPresult.specificity;
+result.sensitivity = TPFPresult.sensitivity;
+result.fMeasure = TPFPresult.fMeasure;
+result.falseAlarmRate = TPFPresult.falseAlarmRate;
+
 result.trainingTime = trainingTime;
 result.testingTime = testingTime;
-result.accuracy = accuracy;
 
 % %We display 25 of the correctly classified images
 % figure
