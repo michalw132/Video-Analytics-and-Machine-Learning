@@ -90,8 +90,8 @@ end
 disp("The testing time for NN is: " + totalTestTime)
 
 %% Evaluation
-comparison = (testLabels == classificationResult);
-Accuracy = sum(comparison)/length(comparison);
+
+Accuracy = RecognitionRate(testLabels, classificationResult);
 disp(['Accuracy: ', num2str(Accuracy)]);
 
 %We display 25 of the correctly classified images

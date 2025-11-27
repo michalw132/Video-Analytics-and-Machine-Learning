@@ -77,8 +77,7 @@ end
 
 disp("The testing time for SVM is: " + totalTestTime)
 %% Evaluation
-comparison = (testLabels == classificationResult);
-Accuracy = sum(comparison) / length(comparison);
+Accuracy = RecognitionRate(testLabels, classificationResult);
 disp(['Accuracy: ', num2str(Accuracy)]);
 
 % Display correctly classified images
