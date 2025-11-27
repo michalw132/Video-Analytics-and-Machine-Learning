@@ -1,93 +1,85 @@
-clear all
-close all
+clear all;
+close all;
 
-%We load the classification model of our choice
-load SVMModel modelSVM
+% Load classifier
+load SVMModel modelSVM;
 
+% Load dataset
 pedestrianData = loadDataset('test.dataset', 20);
 
-%Open testing image and convert to gray scale
-I=imread('./Assets/pedestrian/image_00000011.jpg');
-I=rgb2gray(I);
+% Window size (height × width)
+winH = 160;
+winW = 96;
 
+% Sliding window step size
+step = 30;
 
-% Rough estimate of how large a pedestrian will be in an image
-samplingX = 160;
-samplingY = 96;
+% Scales to detect closer/further pedestrians
+scales = [1, 0.8, 0.6];
 
-% we can calculate the number and rows our sampling area gives us
-numberRows = round(size(I, 1) / samplingX);
-numberColumns = round(size(I, 2) / samplingY);
-
-%This is just for visualisation
-pedestrianCrops = [];
-
-%This is what houses each images detections
+% Storage for detections for each image
 totalDetections = cell(1, numel(pedestrianData));
 
-% This loops through all of the pedestrian images
-for i=1:numel(pedestrianData)
+% Loop through test images
+for i = 1:2
+    fprintf("Processing image %d / %d\n", i, numel(pedestrianData));
 
-    %Gets the current pedestrian image
-    I=imread(pedestrianData(i).filename);
-    I=rgb2gray(I);
-    
-    % Shows it and holds on so it can put a rectangle on it when it detects
-    % something, if there's no break point in the detection then this is
-    % meaningless
-    imshow(I)
-    hold on
-    
-    %for each pedestrian within the image, 
-    county = 0;
+    % Read image and convert to grayscale
+    I = imread(pedestrianData(i).filename);
+    I = rgb2gray(I);
+    imshow(I); hold on;
 
+    % Initialize detection storage
     detections = [];
-    for r = 1:30:size(I,1)      % slide vertically every 5 pixels
-        
-        %Initialises detections array
-        currentDetections = [];
-        county = county + 1;
-        countx = 0;
-        for c = 1:30:size(I,2)  % slide horizontally every 5 pixels    
-            
-            % if the current box is not outside of the image
-            if (c+samplingY-1 <= size(I,2)) && (r+samplingX-1 <= size(I,1))
-                
-                countx = countx + 1;
 
-                %we crop the area
-                pedestrianIm = I(r:r+samplingX-1, c:c+samplingY-1);
-                
-                % we convert it into doubles from 0 to 1 
-                pedestrianIm = im2double(pedestrianIm);
-                
-                %All training examples were 160x96. To have any chance, we need to
-                %resample them into a 160x96 image
-                pedestrianIm = imresize(pedestrianIm, [160 96]);
+    % Loop over each scale
+    for s = 1:length(scales)
+        scale = scales(s);
+        Iresized = imresize(I, scale);
+        rMax = size(Iresized,1) - winH + 1;
+        cMax = size(Iresized,2) - winW + 1;
 
-                pedestrianCrops = [pedestrianCrops; pedestrianIm];
+        % Sliding window over resized image
+        for r = 1:step:rMax
+            for c = 1:step:cMax
+                patch = Iresized(r:r+winH-1, c:c+winW-1);
+                patch = im2double(patch);
+                patch = imresize(patch, [winH winW]);  % ensure same size as training
 
-                pedestrianIm = extractHOGVector(pedestrianIm); 
-                
-                tic
-                prediction =  SVMTesting(pedestrianIm, modelSVM, "gaussian");
-                toc
-                
-                    if prediction == 1
-                        rectangle('Position', [c, r, samplingY, samplingX], ...
-                                  'EdgeColor', 'g', 'LineWidth', 2);
-                        % store detection box for later evaluation
-                        detections = [detections; c, r, samplingY, samplingX];
-                    end
-         
+                % Extract HOG features and reshape to row vector
+                feat = extractHOGVector(patch);
+                feat = feat(:)';
+
+                % SVM prediction
+                prediction = SVMTesting(feat, modelSVM, "gaussian");
+
+                % If positive, map box back to original image coordinates
+                if prediction == 1
+                    orig_r = round(r / scale);
+                    orig_c = round(c / scale);
+                    orig_w = round(winW / scale);
+                    orig_h = round(winH / scale);
+                    detections = [detections; orig_c, orig_r, orig_w, orig_h];
+                end
             end
-        end    
+        end
     end
 
-    totalDetections{i} = detections;
+    % Apply Non-Maximum Suppression to remove overlapping boxes
+    nmsBoxes = nonMaxSuppression(detections, 0.3);
 
+    % Draw final detections
+    for k = 1:size(nmsBoxes,1)
+        rectangle('Position', nmsBoxes(k,:), 'EdgeColor', 'g', 'LineWidth', 2);
+    end
+
+    % Evaluate detections against ground truth
+    gtBoxes = pedestrianData(i).boxes;
+    [TP, FP, FN, matches] = evaluateDetections(nmsBoxes, gtBoxes, 0.5);
+    fprintf("Image %d Evaluation: TP=%d  FP=%d  FN=%d\n", i, TP, FP, FN);
+
+    totalDetections{i} = nmsBoxes;
 end
-
 
 % % Display the first 25 crops
 % figure
