@@ -72,48 +72,52 @@ for fold = 1:k
     testImages  = cvFolds(fold).testImages;
     testLabels  = cvFolds(fold).testLabels;
 
-% Preprocessing
-% Z-score standardization
-% Prevents features with large numeric scales from dominating
-mu = mean(trainImages, 1);
-sigma = std(trainImages, 0, 1);
-sigma(sigma == 0) = 1;
+    % Preprocessing
+    % Z-score standardization
+    % Prevents features with large numeric scales from dominating
+    mu = mean(trainImages, 1);
+    sigma = std(trainImages, 0, 1);
+    sigma(sigma == 0) = 1;
 
-trainImages = (trainImages - mu) ./ sigma;
-testImages = (testImages - mu) ./ sigma;
+    trainImages = (trainImages - mu) ./ sigma;
+    testImages = (testImages - mu) ./ sigma;
 
-% L2-normalize each HOG vector
-% Makes HOG descriptors comparable across images
-trainImages = trainImages ./ vecnorm(trainImages, 2, 2);
-testImages  = testImages  ./ vecnorm(testImages, 2, 2);
+    % L2-normalize each HOG vector
+    % Makes HOG descriptors comparable across images
+    trainImages = trainImages ./ vecnorm(trainImages, 2, 2);
+    testImages  = testImages  ./ vecnorm(testImages, 2, 2);
 
-% Replace NaNs (if any rows become 0 vector after normalization)
-% Shouldn't happen, but best to stay on the safe side
-trainImages(any(isnan(trainImages),2), :) = 0;
-testImages(any(isnan(testImages),2), :) = 0;
-
-tic
-% Trains the model
-modelSVM = SVMTraining(trainImages, trainLabels, kernel, lambda, C, sigmakernel);
-trainingTime = trainingTime + toc;
-%disp("Training time: " + trainingTime)
-
-%% Testing
-classificationResult = zeros(size(testImages,1),1);
-
-for i = 1:size(testImages,1)
-    currentTestImage = testImages(i,:);
+    % Replace NaNs (if any rows become 0 vector after normalization)
+    % Shouldn't happen, but best to stay on the safe side
+    trainImages(any(isnan(trainImages),2), :) = 0;
+    testImages(any(isnan(testImages),2), :) = 0;
 
     tic
-    classificationResult(i,1) = SVMTesting(currentTestImage, modelSVM, kernel);
-    testingTime = testingTime + toc;
-end
+    % Trains the model
+    modelSVM = SVMTraining(trainImages, trainLabels, kernel, lambda, C, sigmakernel);
+    trainingTime = trainingTime + toc;
 
-%disp("Testing time: " + testingTime)
+    modelSVM.mu = mu;
+    modelSVM.sigma = sigma;
+    
+    %disp("Training time: " + trainingTime)
 
-TPFPresult = TPFP(testImages, testLabels, classificationResult);
+    %% Testing
+    classificationResult = zeros(size(testImages,1),1);
 
-% Accumulate metrics across folds
+    for i = 1:size(testImages,1)
+        currentTestImage = testImages(i,:);
+
+        tic
+        classificationResult(i,1) = SVMTesting(currentTestImage, modelSVM, kernel);
+        testingTime = testingTime + toc;
+    end
+
+    %disp("Testing time: " + testingTime)
+
+    TPFPresult = TPFP(testImages, testLabels, classificationResult);
+
+    % Accumulate metrics across folds
     TPacc = TPacc + TPFPresult.TP;
     TNacc = TNacc + TPFPresult.TN;
     FPacc = FPacc + TPFPresult.FP;
@@ -163,7 +167,7 @@ save SVMModel modelSVM;
 %     end
 %     i = i + 1;
 % end
-% 
+%
 % % Display incorrectly classified images
 % figure
 % sgtitle('Wrong Classification (SVM)')

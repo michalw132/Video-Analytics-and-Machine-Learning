@@ -8,8 +8,9 @@ if strcmp(model.type,'binary')
     % poly and polyhomog are linear kernels
 
     pred = svmval(image,model.xsup,model.w,model.w0,model.param.kernel,kerneloption);
- 
-    if pred>0
+
+    %Change this threshold
+    if pred>.8
         prediction = 1;
     else
         prediction = 0;

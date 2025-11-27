@@ -12,16 +12,20 @@ winH = 160;
 winW = 96;
 
 % Sliding window step size
-step = 30;
+step = 15;
 
 % Scales to detect closer/further pedestrians
-scales = [1, 0.8, 0.6];
+scales = [1, .7, 0.5];
 
 % Storage for detections for each image
 totalDetections = cell(1, numel(pedestrianData));
 
 % Loop through test images
 for i = 1:2
+
+    if i == 2
+        break;
+    end
     fprintf("Processing image %d / %d\n", i, numel(pedestrianData));
 
     % Read image and convert to grayscale
@@ -49,6 +53,17 @@ for i = 1:2
                 % Extract HOG features and reshape to row vector
                 feat = extractHOGVector(patch);
                 feat = feat(:)';
+
+                % Z-score standardization using training mean/std
+                feat = (feat - modelSVM.mu) ./ modelSVM.sigma;
+
+                % L2-normalize the feature
+                feat = feat / norm(feat, 2);
+
+                % Replace NaNs (just in case)
+                if any(isnan(feat))
+                    feat(isnan(feat)) = 0;
+                end
 
                 % SVM prediction
                 prediction = SVMTesting(feat, modelSVM, "gaussian");
@@ -88,21 +103,21 @@ end
 %     subplot(5,5,i)
 %     Im = reshape(pedestrianCrops(i,:),160,96);
 %     imshow(Im, [])
-% 
+%
 % end
-% 
+%
 % % Display the next 25 crops
 % figure
 % sgtitle('Next 25 crops')
 % counter = 1;
 % for i=25:49
-% 
+%
 %     subplot(5,5,counter)
 %     Im = reshape(pedestrianCrops(i,:),160,96);
 %     imshow(Im, [])
 %     counter = counter + 1;
 % end
-% 
+%
 % % Display the next 25 crops
 % figure
 % sgtitle('Next 25 crops')
@@ -112,9 +127,9 @@ end
 %     Im = reshape(pedestrianCrops(i,:),160,96);
 %     imshow(Im, [])
 %      counter = counter + 1;
-% 
+%
 % end
-% 
+%
 % % Display the next 25 crops
 % figure
 % sgtitle('Next 25 crops')
@@ -124,10 +139,10 @@ end
 %     Im = reshape(pedestrianCrops(i,:),160,96);
 %     imshow(Im, [])
 %      counter = counter + 1;
-% 
+%
 % end
-% 
-% 
+%
+%
 % %% Evaluation
 
 

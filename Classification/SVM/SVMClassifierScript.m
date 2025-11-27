@@ -13,9 +13,9 @@ kernel = 'gaussian';
 
 % Training parameters
 lambda = 1e-20;
-C = 50;
+C = 80;
 sigmakernel = 10;
-k = 4;
+k = 3;
 
 %% Running the classifier
 % Setup results table
