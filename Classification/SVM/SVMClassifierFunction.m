@@ -1,4 +1,4 @@
-function [result] = SVMClassifierFunction(sampling, kernel, lambda, C, sigmakernel)
+function [result] = SVMClassifierFunction(sampling, kernel, lambda, C, sigmakernel, k)
 
 
 %% Initial setup
@@ -56,7 +56,21 @@ end
 
 %% Training
 % Split data into training and testing sets
-[trainImages, trainLabels, testImages, testLabels] = split5050(allImages, labels);
+
+% Use cross-validation instead of 50/50 split
+cvFolds = splitCrossValidation(allImages, labels, k);
+
+% Initialize accumulators
+TPacc = 0; TNacc = 0; FPacc = 0; FNacc = 0;
+accuracyAcc = 0; errorRateAcc = 0; precisionAcc = 0;
+specificityAcc = 0; sensitivityAcc = 0; fMeasureAcc = 0;
+falseAlarmAcc = 0;
+
+for fold = 1:k
+    trainImages = cvFolds(fold).trainImages;
+    trainLabels = cvFolds(fold).trainLabels;
+    testImages  = cvFolds(fold).testImages;
+    testLabels  = cvFolds(fold).testLabels;
 
 % Preprocessing
 % Z-score standardization
@@ -97,26 +111,42 @@ end
 
 %disp("Testing time: " + testingTime)
 
+TPFPresult = TPFP(testImages, testLabels, classificationResult);
+
+% Accumulate metrics across folds
+    TPacc = TPacc + TPFPresult.TP;
+    TNacc = TNacc + TPFPresult.TN;
+    FPacc = FPacc + TPFPresult.FP;
+    FNacc = FNacc + TPFPresult.FN;
+    accuracyAcc = accuracyAcc + TPFPresult.accuracy;
+    errorRateAcc = errorRateAcc + TPFPresult.errorRate;
+    precisionAcc = precisionAcc + TPFPresult.precision;
+    specificityAcc = specificityAcc + TPFPresult.specificity;
+    sensitivityAcc = sensitivityAcc + TPFPresult.sensitivity;
+    fMeasureAcc = fMeasureAcc + TPFPresult.fMeasure;
+    falseAlarmAcc = falseAlarmAcc + TPFPresult.falseAlarmRate;
+
+end
+
 
 %% Evaluation
-TPFPresult = TPFP(testImages, testLabels, classificationResult);
-result.TP = TPFPresult.TP;
-result.TN = TPFPresult.TN;
-result.FP = TPFPresult.FP;
-result.FN = TPFPresult.FN;
+result.TP = TPacc / k;
+result.TN = TNacc / k;
+result.FP = FPacc / k;
+result.FN = FNacc / k;
 
-result.accuracy = TPFPresult.accuracy;
-result.errorRate = TPFPresult.errorRate;
-result.precision = TPFPresult.precision;
-result.specificity = TPFPresult.specificity;
-result.sensitivity = TPFPresult.sensitivity;
-result.fMeasure = TPFPresult.fMeasure;
-result.falseAlarmRate = TPFPresult.falseAlarmRate;
+result.accuracy = accuracyAcc / k;
+result.errorRate = errorRateAcc / k;
+result.precision = precisionAcc / k;
+result.specificity = specificityAcc / k;
+result.sensitivity = sensitivityAcc / k;
+result.fMeasure = fMeasureAcc / k;
+result.falseAlarmRate = falseAlarmAcc / k;
 
-result.trainingTime = trainingTime;
-result.testingTime = testingTime;
+result.trainingTime = trainingTime / k;
+result.testingTime = testingTime / k;
 
-save SVMModel modelSVM
+save SVMModel modelSVM;
 
 % % Display correctly classified images
 % figure
