@@ -1,4 +1,4 @@
-function [prediction maxi]= SVMTesting(image,model,kernel)
+function [prediction maxi]= SVMTesting(image,model,kernel, threshold)
 
 if strcmp(model.type,'binary')
     
@@ -10,7 +10,7 @@ if strcmp(model.type,'binary')
     pred = svmval(image,model.xsup,model.w,model.w0,model.param.kernel,kerneloption);
 
     %Change this threshold
-    if pred>.8
+    if pred>threshold
         prediction = 1;
     else
         prediction = 0;

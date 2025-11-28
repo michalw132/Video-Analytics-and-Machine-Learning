@@ -5,32 +5,34 @@ close all;
 load SVMModel modelSVM;
 
 % Load dataset
-pedestrianData = loadDataset('test.dataset', 20);
+pedestrianData = loadDataset('test.dataset', dataset_sampling_rate);
+
+% Variables 
+dataset_sampling_rate = 1;
+svm_threshold = .9;
+kernel = "gaussian";
+nms_rate = .1;
+gt_detection_threshold = .2;
+base_step = 15;
+scales = [1.8, 1.5, 1.2, 1];
+no_of_Images = numel(pedestrianData);
+
 
 % Window size (height × width)
 winH = 160;
 winW = 96;
 
-% Sliding window step size
-step = 15;
-
-% Scales to detect closer/further pedestrians
-scales = [1, .7, 0.5];
-
-% Storage for detections for each image
-totalDetections = cell(1, numel(pedestrianData));
-
 % Loop through test images
-for i = 1:2
+for i = 1:no_of_Images
 
-    if i == 2
-        break;
-    end
     fprintf("Processing image %d / %d\n", i, numel(pedestrianData));
 
     % Read image and convert to grayscale
     I = imread(pedestrianData(i).filename);
     I = rgb2gray(I);
+
+    % Show first Image
+    figure(i)
     imshow(I); hold on;
 
     % Initialize detection storage
@@ -38,20 +40,28 @@ for i = 1:2
 
     % Loop over each scale
     for s = 1:length(scales)
+
+        % Rescale the image according to the current scale
         scale = scales(s);
         Iresized = imresize(I, scale);
+
+        % Sets the no. of rows and columns in scaled image
         rMax = size(Iresized,1) - winH + 1;
         cMax = size(Iresized,2) - winW + 1;
+        
+        % So that the crop step is scaled
+        stepScaled = max(1, round(base_step * scale));
 
         % Sliding window over resized image
-        for r = 1:step:rMax
-            for c = 1:step:cMax
-                patch = Iresized(r:r+winH-1, c:c+winW-1);
-                patch = im2double(patch);
-                patch = imresize(patch, [winH winW]);  % ensure same size as training
+        for r = 1:stepScaled:rMax
+            for c = 1:stepScaled:cMax
+
+                % Gets the current window
+                window = Iresized(r:r+winH-1, c:c+winW-1);
+                window = im2double(window);
 
                 % Extract HOG features and reshape to row vector
-                feat = extractHOGVector(patch);
+                feat = extractHOGVector(window);
                 feat = feat(:)';
 
                 % Z-score standardization using training mean/std
@@ -60,13 +70,17 @@ for i = 1:2
                 % L2-normalize the feature
                 feat = feat / norm(feat, 2);
 
+                % Applies PCA 
+                feat_centered = feat - modelSVM.PCAMean;
+                feat_pca = feat_centered * modelSVM.PCAVectors;
+
                 % Replace NaNs (just in case)
-                if any(isnan(feat))
-                    feat(isnan(feat)) = 0;
+                if any(isnan(feat_pca))
+                    feat_pca(isnan(feat_pca)) = 0;
                 end
 
                 % SVM prediction
-                prediction = SVMTesting(feat, modelSVM, "gaussian");
+                prediction = SVMTesting(feat_pca, modelSVM, kernel, svm_threshold);
 
                 % If positive, map box back to original image coordinates
                 if prediction == 1
@@ -81,68 +95,21 @@ for i = 1:2
     end
 
     % Apply Non-Maximum Suppression to remove overlapping boxes
-    nmsBoxes = nonMaxSuppression(detections, 0.3);
+    nmsBoxes = nonMaxSuppression(detections, nms_rate);
+
+    gtBoxes = pedestrianData(i).boxes;
 
     % Draw final detections
     for k = 1:size(nmsBoxes,1)
         rectangle('Position', nmsBoxes(k,:), 'EdgeColor', 'g', 'LineWidth', 2);
     end
+    
+    % Draws Ground Truth
+    for k = 1:size(gtBoxes,1)
+        rectangle('Position', gtBoxes(k,:), 'EdgeColor', 'r', 'LineWidth', 2);
+    end
 
     % Evaluate detections against ground truth
-    gtBoxes = pedestrianData(i).boxes;
-    [TP, FP, FN, matches] = evaluateDetections(nmsBoxes, gtBoxes, 0.5);
+    [TP, FP, FN, matches] = evaluateDetections(nmsBoxes, gtBoxes, gt_detection_threshold);
     fprintf("Image %d Evaluation: TP=%d  FP=%d  FN=%d\n", i, TP, FP, FN);
-
-    totalDetections{i} = nmsBoxes;
 end
-
-% % Display the first 25 crops
-% figure
-% sgtitle('First 25 crops')
-% for i=1:25
-%     subplot(5,5,i)
-%     Im = reshape(pedestrianCrops(i,:),160,96);
-%     imshow(Im, [])
-%
-% end
-%
-% % Display the next 25 crops
-% figure
-% sgtitle('Next 25 crops')
-% counter = 1;
-% for i=25:49
-%
-%     subplot(5,5,counter)
-%     Im = reshape(pedestrianCrops(i,:),160,96);
-%     imshow(Im, [])
-%     counter = counter + 1;
-% end
-%
-% % Display the next 25 crops
-% figure
-% sgtitle('Next 25 crops')
-% counter = 1;
-% for i=50:74
-%     subplot(5,5,counter)
-%     Im = reshape(pedestrianCrops(i,:),160,96);
-%     imshow(Im, [])
-%      counter = counter + 1;
-%
-% end
-%
-% % Display the next 25 crops
-% figure
-% sgtitle('Next 25 crops')
-% counter = 1;
-% for i=75:99
-%     subplot(5,5,counter)
-%     Im = reshape(pedestrianCrops(i,:),160,96);
-%     imshow(Im, [])
-%      counter = counter + 1;
-%
-% end
-%
-%
-% %% Evaluation
-
-

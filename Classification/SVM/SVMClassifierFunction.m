@@ -1,4 +1,4 @@
-function [result] = SVMClassifierFunction(sampling, kernel, lambda, C, sigmakernel, k)
+function [result] = SVMClassifierFunction(sampling, kernel, lambda, C, sigmakernel, k, ndim, threshold)
 
 
 %% Initial setup
@@ -91,31 +91,42 @@ for fold = 1:k
     % Shouldn't happen, but best to stay on the safe side
     trainImages(any(isnan(trainImages),2), :) = 0;
     testImages(any(isnan(testImages),2), :) = 0;
+    
+    % PCA
+    % Compute PCA from training data only
+    [PCAVectors, ~, PCAMean, Xtrain_pca] = pca(trainImages, ndim);
+
+    % Project testImages into PCA space
+    Xtest_pca = (testImages - PCAMean) * PCAVectors;
 
     tic
     % Trains the model
-    modelSVM = SVMTraining(trainImages, trainLabels, kernel, lambda, C, sigmakernel);
+    modelSVM = SVMTraining(Xtrain_pca, trainLabels, kernel, lambda, C, sigmakernel);
     trainingTime = trainingTime + toc;
 
     modelSVM.mu = mu;
     modelSVM.sigma = sigma;
+
+    modelSVM.PCAMean = PCAMean;
+    modelSVM.PCAVectors = PCAVectors;
+
     
     %disp("Training time: " + trainingTime)
 
     %% Testing
-    classificationResult = zeros(size(testImages,1),1);
+    classificationResult = zeros(size(Xtest_pca,1),1);
 
-    for i = 1:size(testImages,1)
-        currentTestImage = testImages(i,:);
+    for i = 1:size(Xtest_pca,1)
+        currentTestImage = Xtest_pca(i,:);
 
         tic
-        classificationResult(i,1) = SVMTesting(currentTestImage, modelSVM, kernel);
+        classificationResult(i,1) = SVMTesting(currentTestImage, modelSVM, kernel, threshold);
         testingTime = testingTime + toc;
     end
 
     %disp("Testing time: " + testingTime)
 
-    TPFPresult = TPFP(testImages, testLabels, classificationResult);
+    TPFPresult = TPFP(Xtest_pca, testLabels, classificationResult);
 
     % Accumulate metrics across folds
     TPacc = TPacc + TPFPresult.TP;

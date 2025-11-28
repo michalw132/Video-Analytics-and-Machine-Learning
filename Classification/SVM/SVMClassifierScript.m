@@ -3,7 +3,7 @@ close all
 
 %% Setup parameters
 iterations = 1;
-sampling = 20;
+sampling = 5;
 
 % Training + Testing
 kernel = 'gaussian';
@@ -13,9 +13,11 @@ kernel = 'gaussian';
 
 % Training parameters
 lambda = 1e-20;
-C = 80;
+C = 120;
 sigmakernel = 10;
-k = 3;
+k = 4;
+ndim = 70;
+threshold = .9;
 
 %% Running the classifier
 % Setup results table
@@ -42,7 +44,7 @@ results = struct( ...
     'sigmakernel', {} );
 
 for i = 1:iterations
-    r = SVMClassifierFunction(sampling, kernel, lambda, C, sigmakernel, k);
+    r = SVMClassifierFunction(sampling, kernel, lambda, C, sigmakernel, k, ndim, threshold);
     r.Label = "Run " + i;
 
     % Leave these empty, we only need to display these values once

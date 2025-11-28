@@ -1,27 +1,44 @@
-function [ U,S,X_reduce ] = pca(X,n)
-%this function implements pca and 
-%  returns  U:eigenvectors,S:eigenvalues & X_reduce: dataset with n dimensions
-% here X:dataset with each instance as a row , n: reduced dimesions size
-% defualt n = 50 ;
-if nargin < 2 AND size(X,2)> 50
-    n = 50;
-elseif size(X,2)<50
-    fprintf('very few dimensions.. maybe you dont need pca at all')
+function [eigenVectors, eigenvalues, meanX, Xpca] = pca (X, ndim)
+%X is a matrix conatining all the training samples 
+%the dimensions of X are: number_of_Samples x number_of_features
+%ndim is a variable with the number of reduced PCA dimensions we want to obtain
+
+%calculate mean over the samples
+meanX = mean(X);
+
+%subtract mean to each sample
+A = X - meanX;
+
+% calculate covariance of the previous matrix
+S = A' * A;
+
+% obtain eigenvalue & eigenvector
+[eigenVectors,D] = eig(S);
+eigenvalues = diag(D);
+% sort eigenvalues in descending order
+eigenvalues = eigenvalues(end:-1:1);
+eigenVectors = fliplr(eigenVectors);
+
+
+if nargin<2
+    % if the user does not tell us how many dimensions he wants:
+    % evaluate the number of principal components needed to represent 95% Total variance.
+    
+    eigsum = cumsum(eigenvalues);
+    eigsum = eigsum / eigsum(end);
+    
+    index = find(eigsum >= 0.95);
+    ndim = index(1);
+    
 end
 
-m = size(X,1);
-sigma = (1/m)*(X'*X);
-[U S] = svd(sigma);
+% return only the desired number of dimensions with the higher eignvalues
+% ( higher amount of information)
+eigenVectors = eigenVectors(:,1:ndim);
+eigenvalues = eigenvalues(1:ndim);
 
-X_reduce = zeros(size(X, 1), n); 
-U_reduce = U(:,1:n);      
-for i=1:m
-    for j=1:n
-        x= X(i,:)';            
-        X_reduce(i,j) = x'*U_reduce(:,j);
-    end
-end
 
+% dataset transformed to the pca space:
+Xpca=A*eigenVectors;
 
 end
-
