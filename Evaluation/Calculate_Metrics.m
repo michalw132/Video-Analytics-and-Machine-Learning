@@ -1,4 +1,4 @@
-function [result] = TPFP(testImages, testLabels, classificationResult)
+function [result] = Calculate_Metrics(testImages, testLabels, classificationResult)
 
 N = size(testImages, 1);
 TP = sum((testLabels == 1) & (classificationResult == 1));

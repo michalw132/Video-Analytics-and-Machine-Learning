@@ -4,36 +4,42 @@ close all;
 % Load classifier
 load SVMModel modelSVM;
 
+% Starts the Video Recorder
+outputVideo = VideoWriter('pedestrian_detection.mp4','MPEG-4');
+outputVideo.FrameRate = .5;  % frames per second
+open(outputVideo);
+
+dataset_sampling_rate = 1;
+
 % Load dataset
 pedestrianData = loadDataset('test.dataset', dataset_sampling_rate);
 
 % Variables 
-dataset_sampling_rate = 1;
 svm_threshold = .9;
 kernel = "gaussian";
 nms_rate = .1;
 gt_detection_threshold = .2;
 base_step = 15;
 scales = [1.8, 1.5, 1.2, 1];
-no_of_Images = numel(pedestrianData);
-
+no_of_Images = 5;
 
 % Window size (height × width)
 winH = 160;
 winW = 96;
 
+% Performance counters
+totalTP = 0;
+totalFP = 0;
+totalFN = 0;
+
 % Loop through test images
 for i = 1:no_of_Images
 
-    fprintf("Processing image %d / %d\n", i, numel(pedestrianData));
+    fprintf("Processing image %d / %d\n", i, no_of_Images);
 
     % Read image and convert to grayscale
     I = imread(pedestrianData(i).filename);
     I = rgb2gray(I);
-
-    % Show first Image
-    figure(i)
-    imshow(I); hold on;
 
     % Initialize detection storage
     detections = [];
@@ -99,6 +105,11 @@ for i = 1:no_of_Images
 
     gtBoxes = pedestrianData(i).boxes;
 
+    % Create a  figure  to draw boxes
+    f = figure(i); 
+    imshow(I); 
+    hold on;
+
     % Draw final detections
     for k = 1:size(nmsBoxes,1)
         rectangle('Position', nmsBoxes(k,:), 'EdgeColor', 'g', 'LineWidth', 2);
@@ -109,7 +120,36 @@ for i = 1:no_of_Images
         rectangle('Position', gtBoxes(k,:), 'EdgeColor', 'r', 'LineWidth', 2);
     end
 
+    % Capture the frame for video
+    frame = getframe(f);   % Capture current figure
+    writeVideo(outputVideo,frame);
+
     % Evaluate detections against ground truth
     [TP, FP, FN, matches] = evaluateDetections(nmsBoxes, gtBoxes, gt_detection_threshold);
     fprintf("Image %d Evaluation: TP=%d  FP=%d  FN=%d\n", i, TP, FP, FN);
+
+    % Accumulate totals
+    totalTP = totalTP + TP;
+    totalFP = totalFP + FP;
+    totalFN = totalFN + FN;
 end
+
+close(outputVideo);
+
+% --- Final Performance Summary Graph ---
+figure;
+bar([totalTP, totalFP, totalFN]);
+set(gca, 'XTickLabel', {'TP','FP','FN'}, 'FontSize', 14);
+ylabel('Count');
+title('Overall Detector Performance');
+grid on;
+
+% --- Compute Precision, Recall, and F1 ---
+precision = totalTP / (totalTP + totalFP);
+recall    = totalTP / (totalTP + totalFN);
+F1        = 2 * (precision * recall) / (precision + recall);
+
+fprintf("\nFinal Metrics:\n");
+fprintf("Precision = %.3f\n", precision);
+fprintf("Recall    = %.3f\n", recall);
+fprintf("F1 Score  = %.3f\n", F1);

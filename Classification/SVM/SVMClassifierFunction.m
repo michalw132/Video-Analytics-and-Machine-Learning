@@ -126,20 +126,20 @@ for fold = 1:k
 
     %disp("Testing time: " + testingTime)
 
-    TPFPresult = TPFP(Xtest_pca, testLabels, classificationResult);
+    Calculate_MetricsResult = Calculate_Metrics(Xtest_pca, testLabels, classificationResult);
 
     % Accumulate metrics across folds
-    TPacc = TPacc + TPFPresult.TP;
-    TNacc = TNacc + TPFPresult.TN;
-    FPacc = FPacc + TPFPresult.FP;
-    FNacc = FNacc + TPFPresult.FN;
-    accuracyAcc = accuracyAcc + TPFPresult.accuracy;
-    errorRateAcc = errorRateAcc + TPFPresult.errorRate;
-    precisionAcc = precisionAcc + TPFPresult.precision;
-    specificityAcc = specificityAcc + TPFPresult.specificity;
-    sensitivityAcc = sensitivityAcc + TPFPresult.sensitivity;
-    fMeasureAcc = fMeasureAcc + TPFPresult.fMeasure;
-    falseAlarmAcc = falseAlarmAcc + TPFPresult.falseAlarmRate;
+    TPacc = TPacc + Calculate_MetricsResult.TP;
+    TNacc = TNacc + Calculate_MetricsResult.TN;
+    FPacc = FPacc + Calculate_MetricsResult.FP;
+    FNacc = FNacc + Calculate_MetricsResult.FN;
+    accuracyAcc = accuracyAcc + Calculate_MetricsResult.accuracy;
+    errorRateAcc = errorRateAcc + Calculate_MetricsResult.errorRate;
+    precisionAcc = precisionAcc + Calculate_MetricsResult.precision;
+    specificityAcc = specificityAcc + Calculate_MetricsResult.specificity;
+    sensitivityAcc = sensitivityAcc + Calculate_MetricsResult.sensitivity;
+    fMeasureAcc = fMeasureAcc + Calculate_MetricsResult.fMeasure;
+    falseAlarmAcc = falseAlarmAcc + Calculate_MetricsResult.falseAlarmRate;
 
 end
 
