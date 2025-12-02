@@ -3,7 +3,7 @@ close all
 
 %% Setup parameters
 iterations = 1;
-sampling = 5;
+sampling = 50;
 
 % Training + Testing
 kernel = 'gaussian';
@@ -41,7 +41,10 @@ results = struct( ...
     'kernel', {}, ...
     'lambda', {}, ...
     'C', {}, ...
-    'sigmakernel', {} );
+    'sigmakernel', {}, ...
+    'k', {}, ...
+    'ndim', {}, ...
+    'threshold', {} );
 
 for i = 1:iterations
     r = SVMClassifierFunction(sampling, kernel, lambda, C, sigmakernel, k, ndim, threshold);
@@ -54,6 +57,9 @@ for i = 1:iterations
     r.lambda = [];
     r.C = [];
     r.sigmakernel = [];
+    r.k = [];
+    r.ndim = [];
+    r.threshold = [];
 
     results(i) = r;
 end
@@ -86,6 +92,9 @@ summary.kernel = kernel;
 summary.lambda = lambda;
 summary.C = C;
 summary.sigmakernel = sigmakernel;
+summary.k = k;
+summary.ndim = ndim;
+summary.threshold = threshold;
 
 % Append summary struct to results struct
 results(end + 1) = summary;
