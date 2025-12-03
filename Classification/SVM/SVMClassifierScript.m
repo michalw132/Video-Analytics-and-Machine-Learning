@@ -2,8 +2,8 @@ clear all
 close all
 
 %% Setup parameters
-iterations = 1;
-sampling = 50;
+iterations = 5;
+sampling = 5;
 
 % Training + Testing
 kernel = 'gaussian';
@@ -13,11 +13,11 @@ kernel = 'gaussian';
 
 % Training parameters
 lambda = 1e-20;
-C = 120;
-sigmakernel = 10;
-k = 4;
-ndim = 70;
-threshold = .9;
+C = 40;
+sigmakernel = 5;
+k = 10;
+ndim = 150;
+threshold = .7;
 
 %% Running the classifier
 % Setup results table
@@ -99,6 +99,11 @@ summary.threshold = threshold;
 % Append summary struct to results struct
 results(end + 1) = summary;
 
+results = rmfield(results, "TP");
+results = rmfield(results, "TN");
+results = rmfield(results, "FP");
+results = rmfield(results, "FN");
+
 % Output results as .csv
 table = struct2table(results);
 writetable(table, 'svmResults.csv');
@@ -114,10 +119,10 @@ acc = [results(1:iterations).accuracy];
 trainTimes = [results(1:iterations).trainingTime];
 testTimes  = [results(1:iterations).testingTime];
 
-TP = [results(1:iterations).TP];
-TN = [results(1:iterations).TN];
-FP = [results(1:iterations).FP];
-FN = [results(1:iterations).FN];
+% TP = [results(1:iterations).TP];
+% TN = [results(1:iterations).TN];
+% FP = [results(1:iterations).FP];
+% FN = [results(1:iterations).FN];
 
 %  Accuracy
 figure;
@@ -135,12 +140,12 @@ xlabel('Run Number');
 ylabel('Time (seconds)');
 title('Training vs Testing Time over multiple SVM runs');
 grid on;
-
-%  Confusion Matrix
-figure;
-bar(runs, [TP' FP' TN' FN'], 'stacked');
-xlabel('Run Number');
-ylabel('Count');
-legend('TP', 'FP', 'TN', 'FN');
-title('Confusion Components over multiple SVM runs');
-grid on;
+% 
+% %  Confusion Matrix
+% figure;
+% bar(runs, [TP' FP' TN' FN'], 'stacked');
+% xlabel('Run Number');
+% ylabel('Count');
+% legend('TP', 'FP', 'TN', 'FN');
+% title('Confusion Components over multiple SVM runs');
+% grid on;

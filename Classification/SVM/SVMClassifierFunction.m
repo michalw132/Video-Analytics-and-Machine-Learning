@@ -158,8 +158,8 @@ result.sensitivity = sensitivityAcc / k;
 result.fMeasure = fMeasureAcc / k;
 result.falseAlarmRate = falseAlarmAcc / k;
 
-result.trainingTime = trainingTime / k;
-result.testingTime = testingTime / k;
+result.trainingTime = trainingTime;
+result.testingTime = testingTime;
 
 save SVMModel modelSVM;
 
