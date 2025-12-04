@@ -119,6 +119,8 @@ acc = [results(1:iterations).accuracy];
 trainTimes = [results(1:iterations).trainingTime];
 testTimes  = [results(1:iterations).testingTime];
 
+% The below have been removed to help generate more reabable tables for the
+% report
 % TP = [results(1:iterations).TP];
 % TN = [results(1:iterations).TN];
 % FP = [results(1:iterations).FP];
