@@ -91,7 +91,7 @@ end
 %disp("The testing time for NN is: " + totalTestTime)
 
 %% Evaluation
-TPFPresult = TPFP(testImages, testLabels, classificationResult);
+TPFPresult = Calculate_Metrics(testImages, testLabels, classificationResult);
 result.TP = TPFPresult.TP;
 result.TN = TPFPresult.TN;
 result.FP = TPFPresult.FP;

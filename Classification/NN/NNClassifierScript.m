@@ -3,7 +3,7 @@ close all
 
 %% Setup parameters
 iterations = 5;
-sampling = 50;
+sampling = 5;
 k = 10;
 
 %% Running the classifier
